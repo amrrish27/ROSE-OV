@@ -1,0 +1,24 @@
+{
+  "name": "rose-ov",
+  "version": "1.0.0",
+  "description": "ROSE-OV desktop AI overlay powered by Gemini",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "package": "electron-builder --win nsis",
+    "test": "node --test test/*.test.js",
+    "test:screen": "electron test/capture-smoke.js"
+  },
+  "build": {
+    "appId": "com.roseovr.desktop",
+    "productName": "ROSE-OV",
+    "files": ["src/**/*", "package.json"],
+    "win": { "target": ["nsis"] },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true }
+  },
+  "devDependencies": {
+    "electron": "^37.2.6",
+    "electron-builder": "^26.0.12"
+  }
+}

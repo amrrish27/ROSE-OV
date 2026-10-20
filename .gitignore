@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Production builds
+dist/
+
+# Large decompiled/reverse-engineering analysis files
+cluely-rea-asar.json
+cluely-rea-analysis.json
+
+# Test images / scratch files
+test-current-screen.png
+
+# Environment & logs
+*.log
+.env
