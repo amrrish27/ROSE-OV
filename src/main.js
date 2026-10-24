@@ -19,20 +19,68 @@ function publicSettings() { const { apiKey, ...safe } = settings; return { ...sa
 function preload() { return path.join(__dirname, 'preload.js'); }
 function makeWindow(options) { const win = new BrowserWindow({ webPreferences: { preload: preload(), contextIsolation: true, nodeIntegration: false }, ...options }); win.setAlwaysOnTop(true, 'floating'); win.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true }); return win; }
 function controlBounds() { const area = screen.getPrimaryDisplay().workArea; return settings.position || { x: Math.round(area.x + area.width / 2 - 115), y: area.y + 24 }; }
+const CONTROL_WIDTH = 230;
+const CONTROL_HEIGHT = 56;
+const CHAT_WIDTH = 560;
+const CHAT_HEIGHT = 470;
+
 function createControl() {
   const p = controlBounds();
-  controlWindow = makeWindow({ width: 230, height: 56, x: p.x, y: p.y, frame: false, transparent: true, resizable: false, skipTaskbar: true, title: 'ROSE-OV control' });
+  controlWindow = makeWindow({
+    width: CONTROL_WIDTH,
+    height: CONTROL_HEIGHT,
+    minWidth: CONTROL_WIDTH,
+    maxWidth: CONTROL_WIDTH,
+    minHeight: CONTROL_HEIGHT,
+    maxHeight: CONTROL_HEIGHT,
+    x: p.x,
+    y: p.y,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    maximizable: false,
+    skipTaskbar: true,
+    title: 'ROSE-OV control'
+  });
   controlWindow.loadFile(path.join(__dirname, 'control.html'));
   controlWindow.on('move', positionChanged);
   controlWindow.on('closed', () => controlWindow = null);
 }
 function createChat() {
   const b = controlWindow.getBounds();
-  chatWindow = makeWindow({ width: 560, height: 470, x: b.x - 165, y: b.y + b.height + 8, frame: false, transparent: true, resizable: false, skipTaskbar: true, show: false, title: 'ROSE-OV' });
+  chatWindow = makeWindow({
+    width: CHAT_WIDTH,
+    height: CHAT_HEIGHT,
+    minWidth: CHAT_WIDTH,
+    maxWidth: CHAT_WIDTH,
+    minHeight: CHAT_HEIGHT,
+    maxHeight: CHAT_HEIGHT,
+    x: b.x - 165,
+    y: b.y + b.height + 8,
+    frame: false,
+    transparent: true,
+    resizable: false,
+    maximizable: false,
+    skipTaskbar: true,
+    show: false,
+    title: 'ROSE-OV'
+  });
   chatWindow.loadFile(path.join(__dirname, 'chat.html'));
   chatWindow.on('closed', () => chatWindow = null);
 }
-function positionChanged() { if (!controlWindow || !chatWindow) return; const b = controlWindow.getBounds(); chatWindow.setPosition(b.x - 165, b.y + b.height + 8); settings.position = { x: b.x, y: b.y }; fs.writeFileSync(settingsPath(), JSON.stringify(settings, null, 2)); }
+function positionChanged() {
+  if (!controlWindow || !chatWindow) return;
+  const b = controlWindow.getBounds();
+  // Ensure chat window keeps its exact target bounds and fixed dimensions
+  chatWindow.setBounds({
+    x: b.x - 165,
+    y: b.y + b.height + 8,
+    width: CHAT_WIDTH,
+    height: CHAT_HEIGHT
+  });
+  settings.position = { x: b.x, y: b.y };
+  fs.writeFileSync(settingsPath(), JSON.stringify(settings, null, 2));
+}
 function createSettings() {
   if (settingsWindow) return settingsWindow.show();
   settingsWindow = new BrowserWindow({ width: 760, height: 650, minWidth: 640, minHeight: 540, title: 'ROSE-OV Settings', backgroundColor: '#100b18', webPreferences: { preload: preload(), contextIsolation: true } });
